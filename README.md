@@ -2,4 +2,4 @@ This is the code for our* project submission for UA-Innovate. The competition in
 
 The project is obviously the product of a 24-hour competition, and is lacking much of the polish and several of the features we would have hoped to include in a final version of this project. It is also likely not foloowing several best practices, but such is the nature of a first prototype.
 
-* Grace Neil, Carson Mathre, Chris Rasmussen, and Tyler Ward
+\* Grace Neil, Carson Mathre, Chris Rasmussen, and Tyler Ward
