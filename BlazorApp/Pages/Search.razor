@@ -1,0 +1,40 @@
+﻿@*@page "/search"
+@using BlazorApp.Data
+@inject EmployeeService EmployeeService
+
+
+<input type="text" value="" @oninput="@FilterChangedAsync" />
+
+@string.Join(",", SearchText)
+
+@code{
+	private string? SearchText { get; set; }
+
+	private List<Employee> resultValue;
+
+
+	private void SearchEmployee(string Input)
+	{
+		// Start search after 3 characters and only if the input is not empty. Return "No results" if no results are found.
+		if (Input.Length >= 3)
+		{
+			SearchText = "";
+			resultValue = EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>() == null ? null : EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>();
+			if(resultValue!=null)
+			{
+				foreach (var item in resultValue)
+				{
+					SearchText += item.Name;
+					SearchText += ", ";
+				}
+			}
+			else SearchText = "No results";
+		}
+		else SearchText = "No results";
+	}
+
+	private void FilterChangedAsync(ChangeEventArgs args)
+	{
+		SearchEmployee(args.Value.ToString());
+	}
+}*@

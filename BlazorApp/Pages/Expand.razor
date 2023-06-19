@@ -1,0 +1,96 @@
+@*@page "/expand"
+@using BlazorApp.Data
+@inject EmployeeService EmployeeService
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>9 Equal Boxes with Text</title>
+
+	<style>
+	.container {
+	  display: flex;
+	  flex-wrap: wrap;
+	  justify-content: center;
+	}
+	
+	.box {
+	  width: calc(90% / 3);
+	  height: calc(90% / 3);
+	  padding: 10px;
+	  margin: 5px 5px 5px 5px;
+	  border: solid 2px var(--text);
+	  border-radius: 10px;
+	  background-color: var(--primary);
+	color: var(--text);
+	  font-size: 12px;
+	}
+
+  </style>
+</head>
+<body>
+	<input type="text" value="" @oninput="@FilterChangedAsync" />
+  <div class="container">
+	  @if (resultValue != null)
+	  {
+			@foreach (var item in resultValue)
+			{
+				<div class="box">
+					Name: @item.Name<br>
+					Position: @item.Position<br>
+					ID: @item.ID<br>
+					Location: @item.Location<br>
+					Email: @item.Email<br>
+					<NavLink class="nav-link custom" href="view" @onclick="() => GetEmployee(item)">
+						<span class="oi oi-people" aria-hidden="true"></span> Expand
+					</NavLink>
+				</div>
+			}
+	  }
+	  </div>
+	</body>
+</html>
+
+
+@code {
+	private string? SearchText { get; set; }
+
+	private List<Employee> resultValue;
+
+	private void GetEmployee(Employee input)
+	{
+		EmployeeService.primary = input;
+		EmployeeService.up = EmployeeService.employeelist.Find(x => x.ID == EmployeeService.primary.Up);
+		EmployeeService.downs = new List<Employee>();
+		foreach (string k in EmployeeService.primary.Downs)
+		{
+			EmployeeService.downs.Add(EmployeeService.employeelist.Find(x => x.ID == k));
+		}
+	}
+
+		private void SearchEmployee(string Input)
+	{
+		// Start search after 3 characters and only if the input is not empty. Return "No results" if no results are found.
+		if (Input.Length >= 3)
+		{
+			SearchText = "";
+			resultValue = EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>() == null ? null : EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>();
+			if (resultValue != null)
+			{
+				foreach (var item in resultValue)
+				{
+					SearchText += item.Name;
+					SearchText += ", ";
+				}
+			}
+			else SearchText = "No results";
+		}
+		else SearchText = "No results";
+	}
+
+	private void FilterChangedAsync(ChangeEventArgs args)
+	{
+		SearchEmployee(args.Value.ToString());
+	}
+}*@

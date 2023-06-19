@@ -1,0 +1,165 @@
+﻿@page "/"
+@using BlazorApp.Data
+@inject EmployeeService EmployeeService
+
+<PageTitle>Home</PageTitle>
+
+<!-- trying to do css-->
+<style>
+	form {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	input[type="text"] {
+		padding: 40px, 70px;
+		border: none;
+		border-radius: 10px;
+		box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+		height: 45px;
+		width: 500px;
+	}
+
+	button[type="submit"] {
+		background-color: var(--primary);
+		color: var(--text);
+		padding: 10px 20px;
+		border: none;
+		border-radius: 10px;
+		cursor: pointer;
+		margin-left: 10px;
+	}
+</style>
+
+<form>
+	<input type="text" placeholder="Search an ID" @oninput="@FilterChangedAsyncID" />
+</form>
+<br />
+<form>
+	<input type="text" placeholder="Search a Name" @oninput="@FilterChangedAsync" />
+</form>
+<br />
+
+<style>
+	.container {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.box {
+		width: calc(90% / 3);
+		height: calc(90% / 3);
+		padding: 10px;
+		margin: 5px 5px 5px 5px;
+		border: solid 2px var(--text);
+		border-radius: 10px;
+		background-color: var(--primary);
+		color: var(--text);
+		font-size: 12px;
+	}
+
+</style>
+
+<body>
+	<div class="container">
+		@if (resultValue != null)
+		{
+			@foreach (var item in resultValue)
+			{
+				<div class="box">
+					Name: @item.Name<br>
+					Position: @item.Position<br>
+					ID: @item.ID<br>
+					Location: @item.Location<br>
+					Email: @item.Email<br>
+					<NavLink class="nav-link custom" href="view" @onclick="() => GetEmployee(item)">
+						<span class="oi oi-people" aria-hidden="true"></span> Expand
+					</NavLink>
+				</div>
+			}
+		}
+	</div>
+</body>
+
+
+@code {
+	private string? SearchText { get; set; }
+
+	private List<Employee> resultValue;
+
+	private void GetEmployee(Employee input)
+	{
+		EmployeeService.primary = input;
+		EmployeeService.up = EmployeeService.employeelist.Find(x => x.ID == EmployeeService.primary.Up);
+		EmployeeService.downs = new List<Employee>();
+		foreach (string k in EmployeeService.primary.Downs)
+		{
+			EmployeeService.downs.Add(EmployeeService.employeelist.Find(x => x.ID == k));
+		}
+	}
+
+	private void SearchEmployee(string Input, string Type)
+	{
+		// Start search after 3 characters and only if the input is not empty. Return "No results" if no results are found.
+		if (Input.Length >= 3)
+		{
+			SearchText = "";
+			if (Type == "ID") resultValue = EmployeeService.employeelist.Where(x => x.ID.ToLower().Contains(Input.ToLower())).ToList<Employee>() == null ? null : EmployeeService.employeelist.Where(x => x.ID.ToLower().Contains(Input.ToLower())).ToList<Employee>();
+			else
+				resultValue = EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>() == null ? null : EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>();
+			if (resultValue != null)
+			{
+				foreach (var item in resultValue)
+				{
+					SearchText += item.Name;
+					SearchText += ", ";
+				}
+			}
+			else SearchText = "No results";
+		}
+		else SearchText = "No results";
+	}
+
+	private void SearchEmployee(string Input)
+	{
+		// Start search after 3 characters and only if the input is not empty. Return "No results" if no results are found.
+		if (Input.Length >= 3)
+		{
+			SearchText = "";
+			resultValue = EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>() == null ? null : EmployeeService.employeelist.Where(x => x.Name.ToLower().Contains(Input.ToLower())).ToList<Employee>();
+			if (resultValue != null)
+			{
+				foreach (var item in resultValue)
+				{
+					SearchText += item.Name;
+					SearchText += ", ";
+				}
+			}
+			else SearchText = "No results";
+		}
+		else SearchText = "No results";
+	}
+
+
+	private void FilterChangedAsync(ChangeEventArgs args)
+	{
+		SearchEmployee(args.Value.ToString());
+	}
+
+	private void FilterChangedAsyncID(ChangeEventArgs args)
+	{
+		SearchEmployee(args.Value.ToString(), "ID");
+	}
+
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		// restore the previous code here
+		EmployeeService.employeelist = await EmployeeService.GetEmployeesAsync();
+		if (firstRender) GetEmployee(EmployeeService.employeelist.Find(x => x.ID == "792BDML"));
+		StateHasChanged();
+	}
+
+}

@@ -1,0 +1,83 @@
+﻿@page "/employee"
+@using BlazorApp.Data
+@inject EmployeeService EmployeeService 
+
+
+<h3>EmployeeView</h3>
+
+
+<PageTitle>Employee View</PageTitle>
+
+<h1>Employees</h1>
+
+<p>This component demonstrates fetching data from a csv (If it works).</p>
+
+@if (EmployeeService.employeelist == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Company ID</th>
+				<th>Supervisor</th>
+				<th>Manages</th>
+				<th>Location</th>
+				<th>Anniversary</th>
+			</tr>
+		</thead>
+		<tbody>
+			@if (EmployeeService.employeelist != null)
+			{
+				@foreach (Employee employee in EmployeeService.employeelist.Take(20000))
+			{
+				<tr>
+					<td>@employee.Name</td>
+					<td>@employee.ID</td>
+					<td>@employee.Up</td>
+					@if (employee.Downs == null)
+					{
+						<td>Null</td>
+					}
+					else
+					{
+						<td>@string.Join(",", employee.Downs)</td>
+					}
+					<td>@employee.Location</td>
+					@if (employee.Anniversary == null)
+					{
+						<td>Null</td>
+					}
+					else
+					{
+						<td>@employee.Anniversary</td>
+					}
+				</tr>
+			}
+			}
+			else
+			{
+			<em>Loading...</em>
+			}
+		</tbody>
+	</table>
+}
+
+
+@code
+{
+	//private List<Employee>? employeelist;
+	//bool dataIsLoaded = false;
+	//private async Task CreateTheTasks()
+	//{
+	//	employeelist = await EmployeeService.GetEmployeesAsync(100);
+	//	StateHasChanged();
+	//}
+	//protected override async Task OnAfterRenderAsync(bool test)
+	//{
+	//	await CreateTheTasks();
+	//}
+}
